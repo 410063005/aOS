@@ -21,3 +21,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "aOS"
 include ':app'
+include ':data'
+include ':feature'
+include ':feature:login'
+include ':feature:profile'
+include ':feature:repo'
