@@ -1,9 +1,12 @@
 package com.example.aos.service
 
 import com.example.aos.model.GithubRepo
+import com.example.aos.model.Issue
 import com.example.aos.model.UserProfile
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -34,6 +37,19 @@ interface GithubApi {
         @Query("per_page") perPage: Int = 30,
         @Query("page") page: Int = 1
     ): List<GithubRepo>
+
+    @POST("repos/{owner}/{repo}/issues")
+    suspend fun createIssue(
+        @Path("owner") owner: String,
+        @Path("repo") repo: String,
+        @Body issue: IssueRequest
+    ): Issue
+
+    @GET("repos/{owner}/{repo}")
+    suspend fun getRepo(
+        @Path("owner") owner: String,
+        @Path("repo") repo: String
+    ): GithubRepo
 }
 
 data class SearchResponse(
@@ -51,4 +67,10 @@ data class UserResponse(
     val public_repos: Int,
     val followers: Int,
     val following: Int
+)
+
+data class IssueRequest(
+    val title: String,
+    val body: String,
+    val labels: List<String>
 )

@@ -9,11 +9,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
-import com.example.aos.R
-import com.example.aos.model.GithubRepo
 import com.example.aos.navigation.Screen
 
 sealed class Tab(val route: String, val icon: @Composable () -> Unit, val label: String) {
@@ -66,13 +63,18 @@ fun HomeScreen(
         when (selectedTab) {
             Tab.PopularRepos -> {
                 PopularReposScreen(
-                    onRepoClick = { /* Handle repo click */ },
+                    onRepoClick = { repo ->
+                        /* Handle repo click */
+                        navController?.navigate(Screen.RepoDetails.createRoute(repo.owner.login, repo.name))
+                    },
                     modifier = Modifier.padding(paddingValues)
                 )
             }
             Tab.Profile -> {
                 ProfileScreen(
-                    onRepoClick = {},
+                    onRepoClick = { repo ->
+                        navController?.navigate(Screen.RepoDetails.createRoute(repo.owner.login, repo.name))
+                    },
 //                    modifier = Modifier.padding(paddingValues)
                     modifier = Modifier.fillMaxSize(),
                     navController = navController

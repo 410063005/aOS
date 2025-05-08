@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.example.aos.data.UserPreferences
 import com.example.aos.navigation.AppNavigation
 import com.example.aos.ui.theme.AOSTheme
 
@@ -20,6 +21,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    val userPreferences = UserPreferences(this)
                     val navController = rememberNavController()
                     AppNavigation(navController = navController)
                 }
