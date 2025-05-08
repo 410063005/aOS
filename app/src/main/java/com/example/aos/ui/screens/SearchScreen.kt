@@ -1,5 +1,6 @@
 package com.example.aos.ui.screens
 
+import android.app.Application
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,11 +14,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.aos.model.GithubRepo
 import com.example.aos.viewmodel.SearchViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.aos.viewmodel.ViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,7 +28,9 @@ fun SearchScreen(
     onRepoClick: (GithubRepo) -> Unit,
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: SearchViewModel = viewModel()
+    viewModel: SearchViewModel = viewModel(
+        factory = ViewModelFactory(LocalContext.current.applicationContext as Application)
+    )
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedLanguage by remember { mutableStateOf<String?>(null) }

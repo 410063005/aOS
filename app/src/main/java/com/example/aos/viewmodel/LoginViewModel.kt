@@ -5,15 +5,17 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.data.UserPreferences
-import com.example.aos.service.GithubApiFactory
+import com.example.aos.service.GithubApi
 import com.example.aos.service.UserResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
-    private val api = GithubApiFactory.githubApi
+class LoginViewModel(
+    application: Application,
+    private val api: GithubApi
+) : AndroidViewModel(application) {
 
     private val userPreferences = UserPreferences(application)
 
@@ -25,6 +27,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _username = MutableStateFlow("")
     val username: StateFlow<String> = _username.asStateFlow()
+
     init {
         // Check if user is already logged in
         if (userPreferences.isLoggedIn()) {

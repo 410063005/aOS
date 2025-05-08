@@ -1,5 +1,6 @@
 package com.example.aos.ui.screens
 
+import android.app.Application
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,8 +17,10 @@ import com.example.aos.ui.components.ProfileAvatar
 import com.example.aos.viewmodel.ProfileViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.aos.viewmodel.LoginViewModel
+import com.example.aos.viewmodel.ViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,8 +28,12 @@ fun ProfileScreen(
     onRepoClick: (GithubRepo) -> Unit,
     navController: NavController?,
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = viewModel(),
-    loginViewModel: LoginViewModel = viewModel()
+    viewModel: ProfileViewModel = viewModel(
+        factory = ViewModelFactory(LocalContext.current.applicationContext as Application)
+    ),
+    loginViewModel: LoginViewModel = viewModel(
+        factory = ViewModelFactory(LocalContext.current.applicationContext as Application)
+    )
 ) {
     val profile by viewModel.profile.collectAsState()
     val repos by viewModel.repos.collectAsState()

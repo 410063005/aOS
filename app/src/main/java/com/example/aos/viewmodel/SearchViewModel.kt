@@ -3,6 +3,7 @@ package com.example.aos.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.model.GithubRepo
+import com.example.aos.service.GithubApi
 import com.example.aos.service.GithubApiFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -11,7 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class SearchViewModel : ViewModel() {
+class SearchViewModel(
+    private val api: GithubApi = GithubApiFactory.githubApi
+) : ViewModel() {
     private val _repos = MutableStateFlow<List<GithubRepo>>(emptyList())
     val repos: StateFlow<List<GithubRepo>> = _repos.asStateFlow()
 
@@ -20,8 +23,6 @@ class SearchViewModel : ViewModel() {
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
-
-    private val api = GithubApiFactory.githubApi
 
     private var searchJob: Job? = null
 

@@ -4,14 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.model.GithubRepo
 import com.example.aos.model.UserProfile
+import com.example.aos.service.GithubApi
 import com.example.aos.service.GithubApiFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ProfileViewModel :  ViewModel() {
-    private val api = GithubApiFactory.githubApi
+class ProfileViewModel(
+    private val api: GithubApi = GithubApiFactory.githubApi
+) :  ViewModel() {
 
     private val _profile = MutableStateFlow<UserProfile?>(null)
     val profile: StateFlow<UserProfile?> = _profile.asStateFlow()

@@ -3,13 +3,16 @@ package com.example.aos.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.model.GithubRepo
+import com.example.aos.service.GithubApi
 import com.example.aos.service.GithubApiFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class PopularReposViewModel : ViewModel() {
+class PopularReposViewModel(
+    private val api: GithubApi = GithubApiFactory.githubApi
+) : ViewModel() {
     private val _repos = MutableStateFlow<List<GithubRepo>>(emptyList())
     val repos: StateFlow<List<GithubRepo>> = _repos.asStateFlow()
 
@@ -24,8 +27,6 @@ class PopularReposViewModel : ViewModel() {
 
     private var currentPage = 1
     private var totalCount = 0
-
-    private val api = GithubApiFactory.githubApi
 
     init {
         fetchPopularRepos()
@@ -42,11 +43,11 @@ class PopularReposViewModel : ViewModel() {
                     query = "stars:>1000",
                     page = currentPage
                 )
-                
+
                 totalCount = response.total_count
                 _repos.value = _repos.value + response.items
                 currentPage++
-                
+
                 // Check if we've loaded all items
                 _hasMoreItems.value = _repos.value.size < totalCount
             } catch (e: Exception) {

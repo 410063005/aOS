@@ -1,5 +1,6 @@
 package com.example.aos.ui.screens
 
+import android.app.Application
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,6 +22,7 @@ import com.example.aos.model.Owner
 import com.example.aos.ui.components.HighlightedText
 import com.example.aos.viewmodel.PopularReposViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.aos.viewmodel.ViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -33,7 +36,9 @@ fun PopularReposScreenPreview() {
 fun PopularReposScreen(
     onRepoClick: (GithubRepo) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: PopularReposViewModel = viewModel()
+    viewModel: PopularReposViewModel = viewModel(
+        factory = ViewModelFactory(LocalContext.current.applicationContext as Application)
+    )
 ) {
     val repos by viewModel.repos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

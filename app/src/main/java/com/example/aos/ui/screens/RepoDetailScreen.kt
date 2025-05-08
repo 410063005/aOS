@@ -1,5 +1,6 @@
 package com.example.aos.ui.screens
 
+import android.app.Application
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -8,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.aos.model.GithubRepo
@@ -16,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aos.viewmodel.LoginViewModel
 import com.example.aos.viewmodel.RepoDetailViewModel
+import com.example.aos.viewmodel.ViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,8 +27,12 @@ fun RepoDetailScreen(
     repo: String,
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: RepoDetailViewModel = viewModel(),
-    loginViewModel: LoginViewModel = viewModel(),
+    viewModel: RepoDetailViewModel = viewModel(
+        factory = ViewModelFactory(LocalContext.current.applicationContext as Application)
+    ),
+    loginViewModel: LoginViewModel = viewModel(
+        factory = ViewModelFactory(LocalContext.current.applicationContext as Application)
+    ),
 ) {
     val repoData by viewModel.repo.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

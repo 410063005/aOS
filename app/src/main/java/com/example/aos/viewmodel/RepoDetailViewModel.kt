@@ -3,14 +3,16 @@ package com.example.aos.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.model.GithubRepo
+import com.example.aos.service.GithubApi
 import com.example.aos.service.GithubApiFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class RepoDetailViewModel : ViewModel() {
-    private val api = GithubApiFactory.githubApi
+class RepoDetailViewModel(
+    private val api: GithubApi = GithubApiFactory.githubApi
+) : ViewModel() {
 
     private val _repo = MutableStateFlow<GithubRepo?>(null)
     val repo: StateFlow<GithubRepo?> = _repo.asStateFlow()
