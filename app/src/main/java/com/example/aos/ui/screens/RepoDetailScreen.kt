@@ -8,14 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.aos.model.GithubRepo
 import androidx.navigation.NavController
-import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.aos.viewmodel.LoginViewModel
 import com.example.aos.viewmodel.RepoDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,11 +24,13 @@ fun RepoDetailScreen(
     repo: String,
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: RepoDetailViewModel = viewModel()
+    viewModel: RepoDetailViewModel = viewModel(),
+    loginViewModel: LoginViewModel = viewModel(),
 ) {
     val repoData by viewModel.repo.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
 
     LaunchedEffect(owner, repo) {
         viewModel.loadRepo(owner, repo)
@@ -100,7 +101,13 @@ fun RepoDetailScreen(
 
                         item {
                             Button(
-                                onClick = { navController.navigate("raise_issue/$owner/$repo") },
+                                onClick = {
+                                    if (isLoggedIn) {
+                                        navController.navigate("raise_issue/$owner/$repo") 
+                                    } else {
+                                        navController.navigate("login")
+                                    }
+                                },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Icon(
@@ -109,7 +116,7 @@ fun RepoDetailScreen(
                                     modifier = Modifier.size(ButtonDefaults.IconSize)
                                 )
                                 Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                                Text("Raise an Issue")
+                                Text(if (isLoggedIn) "Raise an Issue" else "Login to raise an issue")
                             }
                         }
                     }
