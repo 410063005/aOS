@@ -3,12 +3,16 @@ package com.example.aos.service
 import com.example.aos.model.GithubRepo
 import com.example.aos.model.Issue
 import com.example.aos.model.UserProfile
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 interface GithubApi {
     @GET("search/repositories")
@@ -50,6 +54,23 @@ interface GithubApi {
         @Path("owner") owner: String,
         @Path("repo") repo: String
     ): GithubRepo
+}
+
+object GithubApiFactory {
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+//        .addInterceptor(headerInterceptor())
+        .build()
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://api.github.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(okHttpClient)
+        .build()
+
+    val githubApi: GithubApi by lazy {
+        retrofit.create(GithubApi::class.java)
+    }
 }
 
 data class SearchResponse(

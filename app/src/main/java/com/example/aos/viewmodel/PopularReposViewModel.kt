@@ -3,13 +3,11 @@ package com.example.aos.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.model.GithubRepo
-import com.example.aos.service.GithubApi
+import com.example.aos.service.GithubApiFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class PopularReposViewModel : ViewModel() {
     private val _repos = MutableStateFlow<List<GithubRepo>>(emptyList())
@@ -27,11 +25,7 @@ class PopularReposViewModel : ViewModel() {
     private var currentPage = 1
     private var totalCount = 0
 
-    private val api = Retrofit.Builder()
-        .baseUrl("https://api.github.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(GithubApi::class.java)
+    private val api = GithubApiFactory.githubApi
 
     init {
         fetchPopularRepos()

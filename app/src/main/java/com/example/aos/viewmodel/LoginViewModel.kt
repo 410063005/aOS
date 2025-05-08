@@ -5,21 +5,15 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.data.UserPreferences
-import com.example.aos.service.GithubApi
+import com.example.aos.service.GithubApiFactory
 import com.example.aos.service.UserResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
-    private val api = Retrofit.Builder()
-        .baseUrl("https://api.github.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(GithubApi::class.java)
+    private val api = GithubApiFactory.githubApi
 
     private val userPreferences = UserPreferences(application)
 
