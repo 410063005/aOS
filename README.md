@@ -11,17 +11,33 @@ This app uses a test token to access Github REST apis and buids a very simple Gi
 
 ## Architecture
 
-![](./screenshots/GitHubAppArchitecture.png)
+The project is three-layered. 
 
 ![](./screenshots/GitHubAppCoreClasses.png)
+
+The login and raise issue flow:
 
 ![](./screenshots/GitHubAppLoginAndIssueFlow.png)
 
 ## Screenshots
 
+### Home
+Popular eepos
 ![Home](./screenshots/ScreenHome.png)
-![Search](./screenshots/ScreenSearch.png)
-![Login](./screenshots/ScreenLogin.png)
+
+My Profile and repos
 ![Profile](./screenshots/ScreenProfile.png)
-![RaiseIssue](./screenshots/ScreenRaiseIssue.png)
+
+### Repo
+Repo detail
 ![RepoDetail](./screenshots/ScreenRepoDetail.png)
+
+Raise an Issue
+![RaiseIssue](./screenshots/ScreenRaiseIssue.png)
+
+Search repos
+![Search](./screenshots/ScreenSearch.png)
+
+## Login
+
+![Login](./screenshots/ScreenLogin.png)

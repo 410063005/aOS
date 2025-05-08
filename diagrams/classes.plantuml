@@ -5,55 +5,136 @@ skinparam classAttributeIconSize 0
 skinparam packageStyle rectangle
 skinparam linetype ortho
 
-' Core Screens
-class HomeScreen {
-    + NavController navController
-    + navigateToTab()
+' UI Layer
+package "UI Layer" {
+    class HomeScreen {
+        + NavController navController
+        + navigateToTab()
+    }
+
+    class ProfileScreen {
+        + ProfileViewModel viewModel
+        + LoginViewModel loginViewModel
+        + loadProfile()
+    }
+
+    class RepoDetailScreen {
+        + RepoDetailViewModel viewModel
+        + loadRepo()
+        + raiseIssue()
+    }
+
+    class SearchScreen {
+        + SearchViewModel viewModel
+        + searchRepos()
+        + filterByLanguage()
+    }
+
+    class LoginScreen {
+        + LoginViewModel viewModel
+        + login()
+        + validateToken()
+    }
+
+    class RaiseIssueScreen {
+        + RaiseIssueViewModel viewModel
+        + createIssue()
+        + selectLabels()
+    }
 }
 
-class ProfileScreen {
-    + ProfileViewModel viewModel
-    + LoginViewModel loginViewModel
-    + loadProfile()
+' ViewModel Layer
+package "ViewModel Layer" {
+    class ProfileViewModel {
+        + UserProfile profile
+        + List<GithubRepo> repos
+        + loadProfile()
+        + logout()
+    }
+
+    class LoginViewModel {
+        + Boolean isLoggedIn
+        + String username
+        + login()
+        + logout()
+    }
+
+    class RepoDetailViewModel {
+        + GithubRepo repo
+        + loadRepo()
+        + handleError()
+    }
+
+    class SearchViewModel {
+        + List<GithubRepo> repos
+        + searchRepos()
+        + filterByLanguage()
+    }
+
+    class RaiseIssueViewModel {
+        + IssueFormState formState
+        + createIssue()
+        + updateLabels()
+    }
+
+    class PopularReposViewModel {
+        + List<GithubRepo> repos
+        + fetchPopularRepos()
+        + handlePagination()
+    }
 }
 
-class RepoDetailScreen {
-    + RepoDetailViewModel viewModel
-    + loadRepo()
-    + raiseIssue()
+' Model Layer
+package "Model Layer" {
+    class GithubRepo {
+        + Int id
+        + String name
+        + String description
+        + Owner owner
+        + Int stars
+        + String language
+    }
+
+    class UserProfile {
+        + String login
+        + String name
+        + String avatarUrl
+        + Int publicRepos
+        + Int followers
+    }
+
+    class Issue {
+        + Int id
+        + String title
+        + String body
+        + List<String> labels
+    }
+
+    class Owner {
+        + String login
+        + String avatarUrl
+    }
 }
 
-' Core ViewModels
-class ProfileViewModel {
-    + UserProfile profile
-    + List<GithubRepo> repos
-    + loadProfile()
-    + logout()
-}
+' Service Layer
+package "Service Layer" {
+    interface GithubApi {
+        + searchRepositories()
+        + getUserProfile()
+        + getRepo()
+        + createIssue()
+    }
 
-class LoginViewModel {
-    + Boolean isLoggedIn
-    + String username
-    + login()
-    + logout()
-}
+    class GithubApiFactory {
+        + {static} getInstance()
+        + createApi()
+    }
 
-' Core Models
-class GithubRepo {
-    + Int id
-    + String name
-    + String description
-    + Owner owner
-    + Int stars
-    + String language
-}
-
-class UserProfile {
-    + String login
-    + String name
-    + String avatarUrl
-    + Int publicRepos
-    + Int followers
+    class UserPreferences {
+        + saveToken()
+        + getToken()
+        + clearUserData()
+    }
 }
 
 ' Navigation
@@ -64,16 +145,34 @@ abstract class Screen {
 ' Key Relationships
 HomeScreen --> ProfileScreen
 HomeScreen --> RepoDetailScreen
+HomeScreen --> SearchScreen
 ProfileScreen --> ProfileViewModel
 ProfileScreen --> LoginViewModel
 RepoDetailScreen --> RepoDetailViewModel
+SearchScreen --> SearchViewModel
+LoginScreen --> LoginViewModel
+RaiseIssueScreen --> RaiseIssueViewModel
 
 ProfileViewModel --> UserProfile
 ProfileViewModel --> GithubRepo
+RepoDetailViewModel --> GithubRepo
+SearchViewModel --> GithubRepo
+RaiseIssueViewModel --> Issue
+
+ProfileViewModel --> GithubApi
+LoginViewModel --> GithubApi
+RepoDetailViewModel --> GithubApi
+SearchViewModel --> GithubApi
+RaiseIssueViewModel --> GithubApi
+
+LoginViewModel --> UserPreferences
+RaiseIssueViewModel --> UserPreferences
 
 Screen <|-- HomeScreen
 Screen <|-- ProfileScreen
 Screen <|-- RepoDetailScreen
-
+Screen <|-- SearchScreen
+Screen <|-- LoginScreen
+Screen <|-- RaiseIssueScreen
 
 @enduml
