@@ -55,6 +55,14 @@ fun PopularReposScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         when {
+            isLoading && repos.isEmpty() -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
             error != null && repos.isEmpty() -> {
                 Column(
                     modifier = Modifier
