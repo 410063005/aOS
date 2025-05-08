@@ -30,7 +30,7 @@ sealed class Screen(val route: String) {
 fun AppNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route
+        startDestination = Screen.Home.route
     ) {
         composable(Screen.Login.route) {
             LoginScreen(navController = navController)

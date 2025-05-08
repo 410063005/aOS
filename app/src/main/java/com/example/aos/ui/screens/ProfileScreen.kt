@@ -38,7 +38,9 @@ fun ProfileScreen(
     // Load profile when the screen is first displayed
     LaunchedEffect(Unit) {
         // TODO: Get username from UserPreferences or AuthManager
-        viewModel.loadProfile(username)
+        if (isLoggedIn) {
+            viewModel.loadProfile(username)
+        }
     }
 
     Scaffold(
@@ -95,7 +97,7 @@ fun ProfileScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Text(
-                            text = "Please log in to view your profile",
+                            text = "Please log in to view your profile and repos",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -155,7 +157,7 @@ private fun ProfileHeader(profile: UserProfile, loginViewModel: LoginViewModel, 
         ProfileAvatar(
             avatarUrl = profile.avatarUrl,
             name = profile.name ?: profile.login,
-            modifier = Modifier.size(80.dp)
+            modifier = Modifier.size(60.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column {

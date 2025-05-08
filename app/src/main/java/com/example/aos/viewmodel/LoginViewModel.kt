@@ -64,6 +64,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     fun logout() {
         userPreferences.clearUserData()
         _uiState.value = LoginUiState.Initial
+        _username.value = ""
+        _isLoggedIn.value = false
     }
 }
 
