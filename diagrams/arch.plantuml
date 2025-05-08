@@ -1,0 +1,116 @@
+@startuml GitHubAppArchitecture
+
+!pragma layout smetana
+
+' Style settings
+skinparam componentStyle rectangle
+skinparam linetype ortho
+skinparam backgroundColor white
+skinparam component {
+    BackgroundColor<<UI>> #FFD700
+    BackgroundColor<<ViewModel>> #98FB98
+    BackgroundColor<<Model>> #87CEEB
+    BackgroundColor<<Service>> #FFB6C1
+}
+
+' Components
+package "UI Components" <<UI>> {
+    [HomeScreen] as Home
+    [ProfileScreen] as Profile
+    [RepoDetailScreen] as RepoDetail
+    [SearchScreen] as Search
+    [LoginScreen] as Login
+    [RaiseIssueScreen] as RaiseIssue
+}
+
+package "ViewModels" <<ViewModel>> {
+    [ProfileViewModel] as ProfileVM
+    [LoginViewModel] as LoginVM
+    [RepoDetailViewModel] as RepoDetailVM
+    [SearchViewModel] as SearchVM
+    [RaiseIssueViewModel] as RaiseIssueVM
+}
+
+package "Data Models" <<Model>> {
+    [GithubRepo] as Repo
+    [UserProfile] as User
+    [IssueFormState] as Issue
+}
+
+package "Services" <<Service>> {
+    [GithubApi] as API
+    [UserPreferences] as Prefs
+}
+
+' Component Relationships
+Home --> ProfileVM
+Home --> RepoDetailVM
+Profile --> ProfileVM
+Profile --> LoginVM
+RepoDetail --> RepoDetailVM
+Search --> SearchVM
+Login --> LoginVM
+RaiseIssue --> RaiseIssueVM
+
+ProfileVM --> User
+ProfileVM --> Repo
+ProfileVM --> API
+ProfileVM --> Prefs
+
+LoginVM --> API
+LoginVM --> Prefs
+
+RepoDetailVM --> Repo
+RepoDetailVM --> API
+
+SearchVM --> Repo
+SearchVM --> API
+
+RaiseIssueVM --> Issue
+RaiseIssueVM --> API
+
+' Interface definitions
+interface "Navigation" as Nav
+interface "State Management" as State
+interface "Data Access" as Data
+
+' Interface implementations
+Home ..|> Nav
+Profile ..|> Nav
+RepoDetail ..|> Nav
+Search ..|> Nav
+Login ..|> Nav
+RaiseIssue ..|> Nav
+
+ProfileVM ..|> State
+LoginVM ..|> State
+RepoDetailVM ..|> State
+SearchVM ..|> State
+RaiseIssueVM ..|> State
+
+API ..|> Data
+Prefs ..|> Data
+
+' Notes
+note right of "UI Components"
+  Jetpack Compose screens
+  handling user interactions
+  and navigation
+end note
+
+note right of "ViewModels"
+  State management and
+  business logic
+end note
+
+note right of "Data Models"
+  Domain entities and
+  data structures
+end note
+
+note right of "Services"
+  Network and local
+  storage services
+end note
+
+@enduml

@@ -1,0 +1,91 @@
+@startuml GitHubAppLoginAndIssueFlow
+
+!pragma layout smetana
+
+' Style settings
+skinparam sequence {
+    ArrowColor #2C3E50
+    LifeLineBorderColor #2C3E50
+    LifeLineBackgroundColor #ECF0F1
+    ParticipantBorderColor #2C3E50
+    ParticipantBackgroundColor #ECF0F1
+    ParticipantFontName Impact
+    ParticipantFontSize 17
+    ParticipantFontStyle #2C3E50
+    ActorBorderColor #2C3E50
+    ActorBackgroundColor #ECF0F1
+    ActorFontName Impact
+    ActorFontSize 17
+    ActorFontStyle #2C3E50
+}
+
+actor User
+participant "LoginScreen" as Login
+participant "LoginViewModel" as LoginVM
+participant "UserPreferences" as Prefs
+participant "GithubApi" as API
+participant "HomeScreen" as Home
+participant "RepoDetailScreen" as RepoDetail
+participant "RaiseIssueScreen" as RaiseIssue
+participant "RaiseIssueViewModel" as RaiseIssueVM
+
+== Login Flow ==
+
+User -> Login: Enter GitHub Token
+activate Login
+
+Login -> LoginVM: login(token)
+activate LoginVM
+
+LoginVM -> API: validateToken(token)
+activate API
+API --> LoginVM: token valid
+deactivate API
+
+LoginVM -> Prefs: saveToken(token)
+activate Prefs
+Prefs --> LoginVM: token saved
+deactivate Prefs
+
+LoginVM --> Login: login success
+deactivate LoginVM
+
+Login -> Home: navigate to Home
+deactivate Login
+
+== Issue Creation Flow ==
+
+User -> Home: Select repository
+activate Home
+Home -> RepoDetail: navigate with owner/repo
+deactivate Home
+
+activate RepoDetail
+User -> RepoDetail: Click "Raise Issue"
+RepoDetail -> RaiseIssue: navigate with owner/repo
+deactivate RepoDetail
+
+activate RaiseIssue
+User -> RaiseIssue: Enter issue details
+activate RaiseIssueVM
+
+RaiseIssue -> RaiseIssueVM: createIssue(owner, repo, title, body, labels)
+activate RaiseIssueVM
+
+RaiseIssueVM -> Prefs: getToken()
+activate Prefs
+Prefs --> RaiseIssueVM: token
+deactivate Prefs
+
+RaiseIssueVM -> API: createIssue(token, owner, repo, issueData)
+activate API
+API --> RaiseIssueVM: issue created
+deactivate API
+
+RaiseIssueVM --> RaiseIssue: issue created success
+deactivate RaiseIssueVM
+
+RaiseIssue -> RepoDetail: navigate back
+deactivate RaiseIssue
+
+@enduml 

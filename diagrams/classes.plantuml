@@ -1,0 +1,79 @@
+@startuml GitHubAppCoreClasses
+!pragma layout smetana
+' Style settings
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+' Core Screens
+class HomeScreen {
+    + NavController navController
+    + navigateToTab()
+}
+
+class ProfileScreen {
+    + ProfileViewModel viewModel
+    + LoginViewModel loginViewModel
+    + loadProfile()
+}
+
+class RepoDetailScreen {
+    + RepoDetailViewModel viewModel
+    + loadRepo()
+    + raiseIssue()
+}
+
+' Core ViewModels
+class ProfileViewModel {
+    + UserProfile profile
+    + List<GithubRepo> repos
+    + loadProfile()
+    + logout()
+}
+
+class LoginViewModel {
+    + Boolean isLoggedIn
+    + String username
+    + login()
+    + logout()
+}
+
+' Core Models
+class GithubRepo {
+    + Int id
+    + String name
+    + String description
+    + Owner owner
+    + Int stars
+    + String language
+}
+
+class UserProfile {
+    + String login
+    + String name
+    + String avatarUrl
+    + Int publicRepos
+    + Int followers
+}
+
+' Navigation
+abstract class Screen {
+    + {abstract} String route
+}
+
+' Key Relationships
+HomeScreen --> ProfileScreen
+HomeScreen --> RepoDetailScreen
+ProfileScreen --> ProfileViewModel
+ProfileScreen --> LoginViewModel
+RepoDetailScreen --> RepoDetailViewModel
+
+ProfileViewModel --> UserProfile
+ProfileViewModel --> GithubRepo
+
+Screen <|-- HomeScreen
+Screen <|-- ProfileScreen
+Screen <|-- RepoDetailScreen
+
+
+@enduml
