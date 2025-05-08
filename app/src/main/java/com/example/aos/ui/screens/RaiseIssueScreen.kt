@@ -1,5 +1,6 @@
 package com.example.aos.ui.screens
 
+import android.app.Application
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.aos.viewmodel.RaiseIssueViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.aos.viewmodel.ViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -24,7 +26,9 @@ fun RaiseIssueScreen(
     repo: String,
     navController: NavController,
     modifier: Modifier = Modifier,
-    viewModel: RaiseIssueViewModel = viewModel()
+    viewModel: RaiseIssueViewModel = viewModel(
+        factory = ViewModelFactory(LocalContext.current.applicationContext as Application)
+    )
 ) {
     val formState by viewModel.formState.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()

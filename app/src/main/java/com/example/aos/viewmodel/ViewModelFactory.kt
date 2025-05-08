@@ -24,8 +24,8 @@ class ViewModelFactory(
                 RepoDetailViewModel(api) as T
             modelClass.isAssignableFrom(SearchViewModel::class.java) -> 
                 SearchViewModel(api) as T
-//            modelClass.isAssignableFrom(RaiseIssueViewModel::class.java) ->
-//                RaiseIssueViewModel(api) as T
+            modelClass.isAssignableFrom(RaiseIssueViewModel::class.java) ->
+                RaiseIssueViewModel(application, api) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
     }
