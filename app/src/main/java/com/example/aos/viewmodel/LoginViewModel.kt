@@ -1,0 +1,75 @@
+package com.example.aos.viewmodel
+
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.aos.data.UserPreferences
+import com.example.aos.service.GithubApi
+import com.example.aos.service.UserResponse
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+class LoginViewModel(application: Application) : AndroidViewModel(application) {
+    private val api = Retrofit.Builder()
+        .baseUrl("https://api.github.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(GithubApi::class.java)
+
+    private val userPreferences = UserPreferences(application)
+
+    private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Initial)
+    val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+
+    private val _isLoggedIn = MutableStateFlow<Boolean>(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+
+    private val _username = MutableStateFlow("")
+    val username: StateFlow<String> = _username.asStateFlow()
+    init {
+        // Check if user is already logged in
+        if (userPreferences.isLoggedIn()) {
+            _uiState.value = LoginUiState.Success(userPreferences.getUser()!!)
+            _isLoggedIn.value = true
+            _username.value = userPreferences.getUser()?.login ?: ""
+        }
+    }
+
+    fun login(token: String) {
+        Log.i("cmcmcm", token)
+        viewModelScope.launch {
+            _uiState.value = LoginUiState.Loading
+            try {
+                val user = api.getCurrentUser("Bearer $token")
+                Log.i("cmcmcm", user.toString())
+                
+                // Save login state
+                userPreferences.saveToken(token)
+                userPreferences.saveUser(user)
+                
+                _uiState.value = LoginUiState.Success(user)
+            } catch (e: Exception) {
+                _uiState.value = LoginUiState.Error(
+                    e.message ?: "Failed to authenticate with GitHub"
+                )
+            }
+        }
+    }
+
+    fun logout() {
+        userPreferences.clearUserData()
+        _uiState.value = LoginUiState.Initial
+    }
+}
+
+sealed class LoginUiState {
+    object Initial : LoginUiState()
+    object Loading : LoginUiState()
+    data class Success(val user: UserResponse) : LoginUiState()
+    data class Error(val message: String) : LoginUiState()
+} 
