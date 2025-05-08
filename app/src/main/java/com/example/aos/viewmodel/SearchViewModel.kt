@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.aos.model.GithubRepo
 import com.example.aos.service.GithubApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,11 +37,19 @@ class SearchViewModel : ViewModel() {
     private var searchJob: Job? = null
 
     fun searchRepos(query: String, language: String?) {
+        if (query.isEmpty()) {
+            _repos.value = emptyList()
+            return
+        }
+        searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                _error.value = null
 
+            _isLoading.value = true
+            _error.value = null
+
+            delay(300)
+
+            try {
                 val searchQuery = buildString {
                     if (query.isNotEmpty()) {
                         append(query)
