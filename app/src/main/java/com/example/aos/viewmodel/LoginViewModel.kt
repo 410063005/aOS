@@ -1,11 +1,11 @@
 package com.example.aos.viewmodel
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.data.UserPreferences
 import com.example.aos.service.GithubApi
+import com.example.aos.service.GithubApiFactory
 import com.example.aos.service.UserResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,11 +13,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    application: Application,
-    private val api: GithubApi
-) : AndroidViewModel(application) {
-
-    private val userPreferences = UserPreferences(application)
+//    application: Application,
+    private val api: GithubApi = GithubApiFactory.githubApi,
+    private val userPreferences: UserPreferences
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Initial)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -38,7 +37,6 @@ class LoginViewModel(
     }
 
     fun login(token: String) {
-        Log.i("cmcmcm", token)
         viewModelScope.launch {
             _uiState.value = LoginUiState.Loading
             try {

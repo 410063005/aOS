@@ -92,6 +92,30 @@ object GithubApiFactory {
         retrofit.create(GithubApi::class.java)
     }
 
+    fun githubApiForTest(accessToken: String): GithubApi {
+        if (!this::retrofit.isInitialized) {
+            okHttpClient = OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .addInterceptor(Interceptor { chain ->
+                    var request = chain.request()
+                    val url = request.url.toString()
+                    request = request.newBuilder()
+                        .addHeader("Authorization", "Bearer $accessToken")
+                        .url(url)
+                        .build()
+                    chain.proceed(request)
+                })
+                .build()
+            retrofit = Retrofit.Builder()
+                .baseUrl("https://api.github.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .build()
+        }
+
+        return retrofit.create(GithubApi::class.java)
+    }
+
     private fun headerInterceptor(): Interceptor {
         val userPreferences = UserPreferences(application)
 

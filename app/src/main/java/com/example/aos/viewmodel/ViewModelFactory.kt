@@ -3,6 +3,7 @@ package com.example.aos.viewmodel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.aos.data.UserPreferences
 import com.example.aos.service.GithubApi
 import com.example.aos.service.GithubApiFactory
 
@@ -15,7 +16,7 @@ class ViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> 
-                LoginViewModel(application, api) as T
+                LoginViewModel(api, UserPreferences(application)) as T
             modelClass.isAssignableFrom(PopularReposViewModel::class.java) -> 
                 PopularReposViewModel(api) as T
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> 
