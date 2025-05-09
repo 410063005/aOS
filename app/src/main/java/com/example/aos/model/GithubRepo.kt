@@ -14,6 +14,7 @@ data class GithubRepo(
     val language: String?,
     val forks: Int = 0,
     val watchers: Int = 0,
+    @SerializedName("open_issues")
     val openIssues: Int = 0,
     val defaultBranch: String = "main",
     val createdAt: String? = null,
