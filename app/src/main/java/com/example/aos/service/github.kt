@@ -76,10 +76,6 @@ object GithubApiFactory {
         retrofit.create(GithubApi::class.java)
     }
 
-    fun githubApiForTest(accessToken: String): GithubApi {
-        // TODO
-        return retrofit.create(GithubApi::class.java)
-    }
 
     private fun headerInterceptor(): Interceptor {
         val userPreferences = UserPreferences(App.application)
