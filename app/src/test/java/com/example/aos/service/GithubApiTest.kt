@@ -24,4 +24,10 @@ class GithubApiTest {
         assertTrue(repo.owner.login == "410063005")
         assertTrue(repo.openIssues > 0)
     }
+
+    @Test
+    fun getUserProfile() = runTest {
+        val userProfile = api.getUserProfile("410063005")
+        assertTrue(userProfile.publicRepos > 0)
+    }
 }
