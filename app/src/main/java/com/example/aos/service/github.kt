@@ -1,6 +1,6 @@
 package com.example.aos.service
 
-import android.app.Application
+import com.example.aos.App
 import com.example.aos.data.UserPreferences
 import com.example.aos.model.GithubRepo
 import com.example.aos.model.Issue
@@ -61,63 +61,28 @@ interface GithubApi {
 
 object GithubApiFactory {
 
-    lateinit var application: Application
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .addInterceptor(headerInterceptor())
+        .build()
 
-    private lateinit var okHttpClient: OkHttpClient
-    private lateinit var retrofit: Retrofit
-//    private val okHttpClient = OkHttpClient.Builder()
-//        .connectTimeout(15, TimeUnit.SECONDS)
-//        .addInterceptor(headerInterceptor())
-//        .build()
-//
-//    private val retrofit = Retrofit.Builder()
-//        .baseUrl("https://api.github.com/")
-//        .addConverterFactory(GsonConverterFactory.create())
-//        .client(okHttpClient)
-//        .build()
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://api.github.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(okHttpClient)
+        .build()
 
     val githubApi: GithubApi by lazy {
-        if (!this::retrofit.isInitialized) {
-            okHttpClient = OkHttpClient.Builder()
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .addInterceptor(headerInterceptor())
-                .build()
-            retrofit = Retrofit.Builder()
-                .baseUrl("https://api.github.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(okHttpClient)
-                .build()
-        }
-
         retrofit.create(GithubApi::class.java)
     }
 
     fun githubApiForTest(accessToken: String): GithubApi {
-        if (!this::retrofit.isInitialized) {
-            okHttpClient = OkHttpClient.Builder()
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .addInterceptor(Interceptor { chain ->
-                    var request = chain.request()
-                    val url = request.url.toString()
-                    request = request.newBuilder()
-                        .addHeader("Authorization", "Bearer $accessToken")
-                        .url(url)
-                        .build()
-                    chain.proceed(request)
-                })
-                .build()
-            retrofit = Retrofit.Builder()
-                .baseUrl("https://api.github.com/")
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(okHttpClient)
-                .build()
-        }
-
+        // TODO
         return retrofit.create(GithubApi::class.java)
     }
 
     private fun headerInterceptor(): Interceptor {
-        val userPreferences = UserPreferences(application)
+        val userPreferences = UserPreferences(App.application)
 
         return Interceptor { chain ->
             var request = chain.request()
