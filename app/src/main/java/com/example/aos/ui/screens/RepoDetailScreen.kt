@@ -187,6 +187,11 @@ private fun RepoStats(repo: GithubRepo) {
             value = repo.watchers.toString(),
             label = "Watchers"
         )
+        StatItem(
+            icon = Icons.Default.Warning, //Visibility,
+            value = repo.openIssues.toString(),
+            label = "Issues"
+        )
     }
 }
 
