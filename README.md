@@ -9,6 +9,27 @@ This app uses a test token to access Github REST apis and buids a very simple Gi
 - Logout
 - Raise Issue
 
+## Source Code
+
+- entry: `app/src/main/java/com/example/aos/MainActivity.kt`
+- routes: `com/example/aos/navigation/AppNavigation.kt`
+- service: `com/example/aos/service/github.kt`
+- viewmodel: `com/example/aos/viewmodel`
+
+## Build & Test
+
+Build Apks
+
+```bash
+./gradlew app:assembleRelease  app:assembleDebug
+```
+
+Run Tests (WIP)
+
+```bash
+./gradlew app:test
+```
+
 ## Architecture
 
 The project is three-layered. 
