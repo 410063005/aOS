@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -24,7 +23,6 @@ import com.example.aos.viewmodel.PopularReposViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aos.viewmodel.ViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 @Preview(showBackground = true)
 @Composable
@@ -46,7 +44,6 @@ fun PopularReposScreen(
     val hasMoreItems by viewModel.hasMoreItems.collectAsState()
     
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     // Handle scroll to bottom
     LaunchedEffect(listState) {

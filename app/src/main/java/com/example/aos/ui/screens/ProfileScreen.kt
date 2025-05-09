@@ -44,7 +44,6 @@ fun ProfileScreen(
     
     // Load profile when the screen is first displayed
     LaunchedEffect(Unit) {
-        // TODO: Get username from UserPreferences or AuthManager
         if (isLoggedIn) {
             viewModel.loadProfile(username)
         }

@@ -1,6 +1,5 @@
 package com.example.aos.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.data.UserPreferences
@@ -41,8 +40,7 @@ class LoginViewModel(
             _uiState.value = LoginUiState.Loading
             try {
                 val user = api.getCurrentUser("Bearer $token")
-                Log.i("cmcmcm", user.toString())
-                
+
                 // Save login state
                 userPreferences.saveToken(token)
                 userPreferences.saveUser(user)

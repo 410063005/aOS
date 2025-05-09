@@ -45,7 +45,7 @@ class PopularReposViewModel(
                 )
 
                 totalCount = response.total_count
-                _repos.value = _repos.value + response.items
+                _repos.value += response.items
                 currentPage++
 
                 // Check if we've loaded all items

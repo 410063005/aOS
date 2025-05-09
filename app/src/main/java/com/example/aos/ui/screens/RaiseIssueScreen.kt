@@ -9,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
@@ -45,6 +44,7 @@ fun RaiseIssueScreen(
     LaunchedEffect(isSuccess) {
         if (isSuccess) {
             Toast.makeText(context, "Issue created successfully", Toast.LENGTH_SHORT).show()
+            // TODO how to fine control back
             navController.popBackStack()
         }
     }

@@ -56,9 +56,6 @@ class RaiseIssueViewModel(
                 val issue = api.createIssue(
                     owner = owner,
                     repo = repo,
-//                    title = _formState.value.title,
-//                    body = _formState.value.body,
-//                    labels = _formState.value.labels
                     issue = IssueRequest(
                         title = _formState.value.title,
                         body = _formState.value.body,

@@ -10,8 +10,6 @@ import com.example.aos.ui.screens.HomeScreen
 import com.example.aos.ui.screens.LoginScreen
 import com.example.aos.ui.screens.RepoDetailScreen
 import com.example.aos.ui.screens.SearchScreen
-import com.example.aos.model.GithubRepo
-import com.example.aos.model.Owner
 import com.example.aos.ui.screens.RaiseIssueScreen
 
 sealed class Screen(val route: String) {
