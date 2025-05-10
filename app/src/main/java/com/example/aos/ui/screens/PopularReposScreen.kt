@@ -29,6 +29,10 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 
 @Preview(showBackground = true)
 @Composable
@@ -36,6 +40,7 @@ fun PopularReposScreenPreview() {
     PopularReposScreen({})
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PopularReposScreen(
     onRepoClick: (GithubRepo) -> Unit,
@@ -51,6 +56,19 @@ fun PopularReposScreen(
     var selectedDate by remember { mutableStateOf<String?>(null) }
 
     val listState = rememberLazyListState()
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isLoading && repos.isEmpty(),
+        onRefresh = { viewModel.reset(selectedDate?.let { date ->
+            when (date) {
+                "2 Weeks" -> Date().minusDays(14).yymmdd()
+                "1 Month" -> Date().minusMonths(1).yymmdd()
+                "2 Months" -> Date().minusMonths(2).yymmdd()
+                "6 Months" -> Date().minusMonths(6).yymmdd()
+                "1 Year" -> Date().minusYears(1).yymmdd()
+                else -> null
+            }
+        }) }
+    )
 
     // Handle scroll to bottom
     LaunchedEffect(listState) {
@@ -62,83 +80,89 @@ fun PopularReposScreen(
             }
     }
 
-    Column(modifier = modifier.fillMaxSize()
-        .padding(16.dp)
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
     ) {
-
-        // Date Filter
-        DateFilter(
-            selectedDate = selectedDate,
-            onDateSelected = { date ->
-                selectedDate = date
-                val fmtDate = when (date) {
-                    "2 Weeks" -> Date().minusDays(14).yymmdd()
-                    "1 Month" -> Date().minusMonths(1).yymmdd()
-                    "2 Months" -> Date().minusMonths(2).yymmdd()
-                    "6 Months" -> Date().minusMonths(6).yymmdd()
-                    "1 Year" -> Date().minusYears(1).yymmdd()
-                    else -> null
-                }
-                viewModel.reset(fmtDate)
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        when {
-            isLoading && repos.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-            error != null && repos.isEmpty() -> {
-                Column(
-                    modifier = Modifier
-//                        .align(Alignment.Center)
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = error ?: "An error occurred",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { viewModel.reset() }) {
-                        Text("Retry")
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            // Date Filter
+            DateFilter(
+                selectedDate = selectedDate,
+                onDateSelected = { date ->
+                    selectedDate = date
+                    val fmtDate = when (date) {
+                        "2 Weeks" -> Date().minusDays(14).yymmdd()
+                        "1 Month" -> Date().minusMonths(1).yymmdd()
+                        "2 Months" -> Date().minusMonths(2).yymmdd()
+                        "6 Months" -> Date().minusMonths(6).yymmdd()
+                        "1 Year" -> Date().minusYears(1).yymmdd()
+                        else -> null
                     }
+                    viewModel.reset(fmtDate)
                 }
-            }
-            else -> {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(repos) { repo ->
-                        RepoItem(
-                            repo = repo,
-                            onClick = { onRepoClick(repo) }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            when {
+                error != null && repos.isEmpty() -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = error ?: "An error occurred",
+                            color = MaterialTheme.colorScheme.error
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = { viewModel.reset() }) {
+                            Text("Retry")
+                        }
                     }
-                    
-                    if (isLoading) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
+                }
+                else -> {
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(repos) { repo ->
+                            RepoItem(
+                                repo = repo,
+                                onClick = { onRepoClick(repo) }
+                            )
+                        }
+                        
+                        if (isLoading) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
+        PullRefreshIndicator(
+            refreshing = isLoading && repos.isEmpty(),
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
