@@ -47,4 +47,11 @@ class ProfileViewModel(
             }
         }
     }
+
+    fun reset() {
+        _profile.value = null
+        _repos.value = emptyList()
+        _isLoading.value = false
+        _error.value = null
+    }
 } 

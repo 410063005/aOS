@@ -44,7 +44,7 @@ fun ProfileScreen(
     
     // Load profile when the screen is first displayed
     LaunchedEffect(Unit) {
-        if (isLoggedIn) {
+        if (isLoggedIn && profile == null) {
             viewModel.loadProfile(username)
         }
     }
@@ -124,7 +124,7 @@ fun ProfileScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     item {
-                        ProfileHeader(profile = profile!!, loginViewModel, navController)
+                        ProfileHeader(profile = profile!!, viewModel, loginViewModel, navController)
                     }
                     
                     item {
@@ -155,7 +155,12 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ProfileHeader(profile: UserProfile, loginViewModel: LoginViewModel, navController: NavController?) {
+private fun ProfileHeader(
+    profile: UserProfile,
+    viewModel: ProfileViewModel,
+    loginViewModel: LoginViewModel,
+    navController: NavController?
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -179,6 +184,7 @@ private fun ProfileHeader(profile: UserProfile, loginViewModel: LoginViewModel, 
         }
         Spacer(modifier = Modifier.width(16.dp))
         Button(onClick = {
+            viewModel.reset()
             loginViewModel.logout()
             navController?.navigate("login")
         }) {
