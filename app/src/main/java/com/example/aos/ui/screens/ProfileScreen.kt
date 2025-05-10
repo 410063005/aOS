@@ -25,6 +25,8 @@ import com.example.aos.viewmodel.ViewModelFactory
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
@@ -45,6 +47,28 @@ fun ProfileScreen(
     val error by viewModel.error.collectAsState()
     val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
     val username by loginViewModel.username.collectAsState()
+    val hasMoreItems by viewModel.hasMoreItems.collectAsState()
+    var isPulling by remember { mutableStateOf(false) }
+    
+    val listState = rememberLazyListState()
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isPulling,
+        onRefresh = {
+            isPulling = true
+            viewModel.loadProfile(username)
+            isPulling = false
+        }
+    )
+
+    // Handle scroll to bottom
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
+            .collectLatest { lastIndex ->
+                if (lastIndex != null && lastIndex >= repos.size - 5 && hasMoreItems && !isLoading) {
+                    viewModel.loadMoreRepos()
+                }
+            }
+    }
     
     // Load profile when the screen is first displayed
     LaunchedEffect(Unit) {
@@ -93,11 +117,6 @@ fun ProfileScreen(
                 }
             }
             else -> {
-                val pullRefreshState = rememberPullRefreshState(
-                    refreshing = isLoading,
-                    onRefresh = { viewModel.loadProfile(username) }
-                )
-
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -105,7 +124,7 @@ fun ProfileScreen(
                         .pullRefresh(pullRefreshState)
                 ) {
                     when {
-                        error != null -> {
+                        error != null && repos.isEmpty() -> {
                             Column(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -125,6 +144,7 @@ fun ProfileScreen(
                         }
                         profile != null -> {
                             LazyColumn(
+                                state = listState,
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(16.dp),
@@ -155,12 +175,25 @@ fun ProfileScreen(
                                         onClick = { onRepoClick(repo) }
                                     )
                                 }
+
+                                if (isLoading) {
+                                    item {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(16.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator()
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
 
                     PullRefreshIndicator(
-                        refreshing = isLoading,
+                        refreshing = isPulling,
                         state = pullRefreshState,
                         modifier = Modifier.align(Alignment.TopCenter)
                     )
