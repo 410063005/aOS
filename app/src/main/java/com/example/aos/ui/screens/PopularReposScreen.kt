@@ -71,7 +71,7 @@ fun PopularReposScreen(
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collectLatest { lastIndex ->
                 if (lastIndex != null && lastIndex >= repos.size - 5 && hasMoreItems && !isLoading) {
-                    viewModel.fetchPopularRepos()
+                    viewModel.fetchPopularRepos(strToDate(selectedDate))
                 }
             }
     }
