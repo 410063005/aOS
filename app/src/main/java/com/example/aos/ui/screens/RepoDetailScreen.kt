@@ -38,6 +38,7 @@ fun RepoDetailScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
+    val isStarred by viewModel.isStarred.collectAsState()
 
     LaunchedEffect(owner, repo) {
         viewModel.loadRepo(owner, repo)
@@ -107,23 +108,47 @@ fun RepoDetailScreen(
                         }
 
                         item {
-                            Button(
-                                onClick = {
-                                    if (isLoggedIn) {
-                                        navController.navigate("raise_issue/$owner/$repo") 
-                                    } else {
-                                        navController.navigate("login")
-                                    }
-                                },
-                                modifier = Modifier.fillMaxWidth()
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Refresh, //BugReport,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(ButtonDefaults.IconSize)
-                                )
-                                Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
-                                Text(if (isLoggedIn) "Raise an Issue" else "Login to raise an issue")
+                                Button(
+                                    onClick = {
+                                        if (isLoggedIn) {
+                                            viewModel.toggleStar(owner, repo)
+                                        } else {
+                                            navController.navigate("login")
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        imageVector = if (isStarred) Icons.Default.Star else Icons.Default.Share,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                                    )
+                                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                                    Text(if (isLoggedIn) (if (isStarred) "Unstar" else "Star") else "Login to star")
+                                }
+
+                                Button(
+                                    onClick = {
+                                        if (isLoggedIn) {
+                                            navController.navigate("raise_issue/$owner/$repo") 
+                                        } else {
+                                            navController.navigate("login")
+                                        }
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Build,//BugReport,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                                    )
+                                    Spacer(modifier = Modifier.width(ButtonDefaults.IconSpacing))
+                                    Text(if (isLoggedIn) "Raise an Issue" else "Login to raise an issue")
+                                }
                             }
                         }
                     }
