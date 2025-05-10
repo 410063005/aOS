@@ -2,10 +2,12 @@ package com.example.aos.ui.screens
 
 import android.app.Application
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -23,6 +25,10 @@ import com.example.aos.viewmodel.PopularReposViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aos.viewmodel.ViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @Preview(showBackground = true)
 @Composable
@@ -42,7 +48,8 @@ fun PopularReposScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val hasMoreItems by viewModel.hasMoreItems.collectAsState()
-    
+    var selectedDate by remember { mutableStateOf<String?>(null) }
+
     val listState = rememberLazyListState()
 
     // Handle scroll to bottom
@@ -55,7 +62,29 @@ fun PopularReposScreen(
             }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxSize()
+        .padding(16.dp)
+    ) {
+
+        // Date Filter
+        DateFilter(
+            selectedDate = selectedDate,
+            onDateSelected = { date ->
+                selectedDate = date
+                val fmtDate = when (date) {
+                    "2 Weeks" -> Date().minusDays(14).yymmdd()
+                    "1 Month" -> Date().minusMonths(1).yymmdd()
+                    "2 Months" -> Date().minusMonths(2).yymmdd()
+                    "6 Months" -> Date().minusMonths(6).yymmdd()
+                    "1 Year" -> Date().minusYears(1).yymmdd()
+                    else -> null
+                }
+                viewModel.reset(fmtDate)
+            }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         when {
             isLoading && repos.isEmpty() -> {
                 Box(
@@ -68,7 +97,7 @@ fun PopularReposScreen(
             error != null && repos.isEmpty() -> {
                 Column(
                     modifier = Modifier
-                        .align(Alignment.Center)
+//                        .align(Alignment.Center)
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -86,7 +115,6 @@ fun PopularReposScreen(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(repos) { repo ->
@@ -216,4 +244,64 @@ fun RepoItem(
             }
         }
     }
-} 
+}
+
+@Composable
+private fun DateFilter(
+    selectedDate: String?,
+    onDateSelected: (String?) -> Unit
+) {
+    val dates = listOf("2 Weeks", "1 Month", "2 Months", "6 Months", "1 Year")
+
+    Column {
+        Text(
+            text = "Filter by date:",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            FilterChip(
+                selected = selectedDate == null,
+                onClick = { onDateSelected(null) },
+                label = { Text("All") }
+            )
+            dates.forEach { date ->
+                FilterChip(
+                    selected = selectedDate == date,
+                    onClick = { onDateSelected(date) },
+                    label = { Text(date) }
+                )
+            }
+        }
+    }
+}
+
+fun Date.minusDays(days: Int): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar.add(Calendar.DAY_OF_YEAR, -days)
+    return calendar.time
+}
+
+fun Date.minusMonths(months: Int): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar.add(Calendar.MONTH, -months)
+    return calendar.time
+}   
+
+fun Date.minusYears(years: Int): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar.add(Calendar.YEAR, -years)
+    return calendar.time
+}
+    
+fun Date.yymmdd(): String {
+    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    return formatter.format(this)
+}

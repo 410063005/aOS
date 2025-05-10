@@ -1,5 +1,6 @@
 package com.example.aos.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.aos.model.GithubRepo
@@ -32,15 +33,18 @@ class PopularReposViewModel(
         fetchPopularRepos()
     }
 
-    fun fetchPopularRepos() {
+    fun fetchPopularRepos(date: String? = null) {
         if (_isLoading.value || !_hasMoreItems.value) return
 
+        val query = date?.let { "stars:>1000 created:>$it" } ?: "stars:>1000"
+        Log.i("cmcmcm", date.toString())
+        Log.i("cmcmcm", query)
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _error.value = null
                 val response = api.searchRepositories(
-                    query = "stars:>1000",
+                    query = query,
                     page = currentPage
                 )
 
@@ -58,11 +62,11 @@ class PopularReposViewModel(
         }
     }
 
-    fun reset() {
+    fun reset(date: String? = null) {
         currentPage = 1
         _repos.value = emptyList()
         _hasMoreItems.value = true
         _error.value = null
-        fetchPopularRepos()
+        fetchPopularRepos(date)
     }
 } 
