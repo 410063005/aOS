@@ -33,7 +33,7 @@ class PopularReposViewModel(
         fetchPopularRepos()
     }
 
-    fun fetchPopularRepos(date: String? = null) {
+    fun fetchPopularRepos(date: String? = null, postFetch: () -> Unit = {}) {
         if (_isLoading.value || !_hasMoreItems.value) return
 
         val query = date?.let { "stars:>1000 created:>$it" } ?: "stars:>1000"
@@ -58,6 +58,7 @@ class PopularReposViewModel(
                 _error.value = e.message ?: "An error occurred"
             } finally {
                 _isLoading.value = false
+                postFetch()
             }
         }
     }

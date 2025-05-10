@@ -54,13 +54,16 @@ fun PopularReposScreen(
     val error by viewModel.error.collectAsState()
     val hasMoreItems by viewModel.hasMoreItems.collectAsState()
     var selectedDate by remember { mutableStateOf<String?>(null) }
-
+    var isPulling by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = isLoading && repos.isEmpty(),
-        onRefresh = { viewModel.reset(selectedDate?.let { date ->
-            strToDate(date)
-        }) }
+        refreshing = isPulling, //isLoading && repos.isEmpty(),
+        onRefresh = {
+            isPulling = true
+            viewModel.fetchPopularRepos(strToDate(selectedDate)) {
+                isPulling = false
+            }
+        }
     )
 
     // Handle scroll to bottom
@@ -145,7 +148,7 @@ fun PopularReposScreen(
         }
 
         PullRefreshIndicator(
-            refreshing = isLoading && repos.isEmpty(),
+            refreshing = isPulling, //isLoading && repos.isEmpty(),
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
         )
