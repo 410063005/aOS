@@ -17,12 +17,16 @@ import com.example.aos.ui.components.ProfileAvatar
 import com.example.aos.viewmodel.ProfileViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.clickable
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.aos.viewmodel.LoginViewModel
 import com.example.aos.viewmodel.ViewModelFactory
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun ProfileScreen(
     onRepoClick: (GithubRepo) -> Unit,
@@ -64,33 +68,6 @@ fun ProfileScreen(
         }
     ) { paddingValues ->
         when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-            error != null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = error ?: "An error occurred",
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { viewModel.loadProfile(username) }) {
-                            Text("Retry")
-                        }
-                    }
-                }
-            }
             !isLoggedIn -> {
                 Box(
                     modifier = Modifier
@@ -115,39 +92,78 @@ fun ProfileScreen(
                     }
                 }
             }
-            profile != null -> {
-                LazyColumn(
-                    modifier = modifier
+            else -> {
+                val pullRefreshState = rememberPullRefreshState(
+                    refreshing = isLoading,
+                    onRefresh = { viewModel.loadProfile(username) }
+                )
+
+                Box(
+                    modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .pullRefresh(pullRefreshState)
                 ) {
-                    item {
-                        ProfileHeader(profile = profile!!, viewModel, loginViewModel, navController)
+                    when {
+                        error != null -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = error ?: "An error occurred",
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(onClick = { viewModel.loadProfile(username) }) {
+                                    Text("Retry")
+                                }
+                            }
+                        }
+                        profile != null -> {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                item {
+                                    ProfileHeader(profile = profile!!, viewModel, loginViewModel, navController)
+                                }
+                                
+                                item {
+                                    ProfileStats(profile = profile!!)
+                                }
+                                
+                                item {
+                                    ProfileInfo(profile = profile!!)
+                                }
+                                
+                                item {
+                                    Text(
+                                        text = "Repositories",
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                }
+                                
+                                items(repos) { repo ->
+                                    RepoItem(
+                                        repo = repo,
+                                        onClick = { onRepoClick(repo) }
+                                    )
+                                }
+                            }
+                        }
                     }
-                    
-                    item {
-                        ProfileStats(profile = profile!!)
-                    }
-                    
-                    item {
-                        ProfileInfo(profile = profile!!)
-                    }
-                    
-                    item {
-                        Text(
-                            text = "Repositories",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                    
-                    items(repos) { repo ->
-                        RepoItem(
-                            repo = repo,
-                            onClick = { onRepoClick(repo) }
-                        )
-                    }
+
+                    PullRefreshIndicator(
+                        refreshing = isLoading,
+                        state = pullRefreshState,
+                        modifier = Modifier.align(Alignment.TopCenter)
+                    )
                 }
             }
         }
