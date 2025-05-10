@@ -59,14 +59,7 @@ fun PopularReposScreen(
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isLoading && repos.isEmpty(),
         onRefresh = { viewModel.reset(selectedDate?.let { date ->
-            when (date) {
-                "2 Weeks" -> Date().minusDays(14).yymmdd()
-                "1 Month" -> Date().minusMonths(1).yymmdd()
-                "2 Months" -> Date().minusMonths(2).yymmdd()
-                "6 Months" -> Date().minusMonths(6).yymmdd()
-                "1 Year" -> Date().minusYears(1).yymmdd()
-                else -> null
-            }
+            strToDate(date)
         }) }
     )
 
@@ -95,14 +88,7 @@ fun PopularReposScreen(
                 selectedDate = selectedDate,
                 onDateSelected = { date ->
                     selectedDate = date
-                    val fmtDate = when (date) {
-                        "2 Weeks" -> Date().minusDays(14).yymmdd()
-                        "1 Month" -> Date().minusMonths(1).yymmdd()
-                        "2 Months" -> Date().minusMonths(2).yymmdd()
-                        "6 Months" -> Date().minusMonths(6).yymmdd()
-                        "1 Year" -> Date().minusYears(1).yymmdd()
-                        else -> null
-                    }
+                    val fmtDate = strToDate(date)
                     viewModel.reset(fmtDate)
                 }
             )
@@ -164,6 +150,18 @@ fun PopularReposScreen(
             modifier = Modifier.align(Alignment.TopCenter)
         )
     }
+}
+
+private fun strToDate(date: String?): String? {
+    val fmtDate = when (date) {
+        "2 Weeks" -> Date().minusDays(14).yymmdd()
+        "1 Month" -> Date().minusMonths(1).yymmdd()
+        "2 Months" -> Date().minusMonths(2).yymmdd()
+        "6 Months" -> Date().minusMonths(6).yymmdd()
+        "1 Year" -> Date().minusYears(1).yymmdd()
+        else -> null
+    }
+    return fmtDate
 }
 
 @Preview(showBackground = true)
