@@ -2,10 +2,11 @@ package com.example.aos.ui.screens
 
 import android.app.Application
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,9 +18,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -78,6 +80,7 @@ fun PopularReposScreen(
     val error by viewModel.error.collectAsState()
     val hasMoreItems by viewModel.hasMoreItems.collectAsState()
     var selectedDate by remember { mutableStateOf<String?>(null) }
+    var expandDateFilter by remember { mutableStateOf(false) }
     var isPulling by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val pullRefreshState = rememberPullRefreshState(
@@ -112,11 +115,15 @@ fun PopularReposScreen(
         ) {
             // Date Filter
             DateFilter(
+                expand = expandDateFilter,
                 selectedDate = selectedDate,
+                onExpand = { expandDateFilter = !expandDateFilter },
                 onDateSelected = { date ->
                     selectedDate = date
                     val fmtDate = strToDate(date)
                     viewModel.reset(fmtDate)
+
+                    expandDateFilter = false
                 }
             )
 
@@ -301,35 +308,77 @@ fun RepoItem(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun DateFilterPreview() {
+    Column {
+        DateFilter(expand = true, "All",
+            onExpand = { },
+            onDateSelected = { date ->
+                // pass
+            })
+        DateFilter(expand = false, "All",
+            onExpand = { },
+            onDateSelected = { date ->
+                // pass
+            })
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun DateFilter(
+    expand: Boolean,
     selectedDate: String?,
-    onDateSelected: (String?) -> Unit
+    onExpand: () -> Unit,
+    onDateSelected: (String?) -> Unit,
 ) {
     val dates = listOf("2 Weeks", "1 Month", "2 Months", "6 Months", "1 Year")
 
     Column {
-        Text(
-            text = "Filter by date:",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        FilterChip(
+            selected = false,
+            onClick = { onExpand() },
+            label = {
+                Row {
+                    Text(
+                        text = selectedDate ?: "By date",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (expand) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowUp,
+                            contentDescription = "ArrowUp",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "ArrowDown",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterChip(
-                selected = selectedDate == null,
-                onClick = { onDateSelected(null) },
-                label = { Text("All") }
-            )
-            dates.forEach { date ->
+        if (expand) {
+            Spacer(modifier = Modifier.height(8.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 FilterChip(
-                    selected = selectedDate == date,
-                    onClick = { onDateSelected(date) },
-                    label = { Text(date) }
+                    selected = selectedDate == null || selectedDate == "All",
+                    onClick = { onDateSelected(null) },
+                    label = { Text("All") }
                 )
+                dates.forEach { date ->
+                    FilterChip(
+                        selected = selectedDate == date,
+                        onClick = { onDateSelected(date) },
+                        label = { Text(date) }
+                    )
+                }
             }
         }
     }
