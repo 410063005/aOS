@@ -108,10 +108,6 @@ fun RepoDetailScreen(
                         }
 
                         item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
                                 Button(
                                     onClick = {
                                         if (isLoggedIn) {
@@ -120,7 +116,7 @@ fun RepoDetailScreen(
                                             navController.navigate("login")
                                         }
                                     },
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
                                 ) {
                                     Icon(
                                         imageVector = if (isStarred) Icons.Default.Star else Icons.Default.Share,
@@ -139,7 +135,7 @@ fun RepoDetailScreen(
                                             navController.navigate("login")
                                         }
                                     },
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Build,//BugReport,
@@ -150,7 +146,6 @@ fun RepoDetailScreen(
                                     Text(if (isLoggedIn) "Raise an Issue" else "Login to raise an issue")
                                 }
                             }
-                        }
                     }
                 }
             }

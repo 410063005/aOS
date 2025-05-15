@@ -172,15 +172,15 @@ private fun strToDate(date: String?): String? {
 fun RepoItemPreview() {
     val repo = GithubRepo(
         id = 1,
-        name = "test",
-        description = null, //"test",
+        name = "freeCodeCamp",
+        description = "freeCodeCamp.org offers several free developer certifications. Each of these certifications involves building 5 required web app projects, along with hundreds of optional coding challenges to help you prepare for those projects. We estimate that each certification will take a beginner programmer around 300 hours to earn.\n",
         owner = Owner(
-            login = "test",
-            avatarUrl = "test"
+            login = "freeCodeCamp",
+            avatarUrl = "https://avatars.githubusercontent.com/u/127165244?v=4"
         ),
-        stars = 1000,
-        language = null, //"test",
-        fullName = "cm"
+        stars = 417943,
+        language = "TypeScript",
+        fullName = "freeCodeCamp/freeCodeCamp"
     )
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -234,20 +234,6 @@ fun RepoItem(
                         modifier = Modifier
                     )
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Stars",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = repo.stars.toString(),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
             }
             
             if (!repo.description.isNullOrBlank()) {
@@ -259,14 +245,33 @@ fun RepoItem(
                 )
             }
             
-            if (!repo.language.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
-                HighlightedText(
-                    text = repo.language,
-                    keywords = keywords,
-                    modifier = Modifier
-                )
-            }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                        HighlightedText(
+                            text = repo.language ?: "",
+                            keywords = keywords,
+                            modifier = Modifier
+                        )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Stars",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = repo.stars.toString(),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
         }
     }
 }
