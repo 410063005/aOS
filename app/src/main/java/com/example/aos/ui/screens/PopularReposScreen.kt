@@ -3,36 +3,60 @@ package com.example.aos.ui.screens
 import android.app.Application
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.aos.model.GithubRepo
 import com.example.aos.model.Owner
 import com.example.aos.ui.components.HighlightedText
 import com.example.aos.viewmodel.PopularReposViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aos.viewmodel.ViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 
 @Preview(showBackground = true)
 @Composable
@@ -117,6 +141,7 @@ fun PopularReposScreen(
                         }
                     }
                 }
+
                 else -> {
                     LazyColumn(
                         state = listState,
@@ -129,7 +154,7 @@ fun PopularReposScreen(
                                 onClick = { onRepoClick(repo) }
                             )
                         }
-                        
+
                         if (isLoading) {
                             item {
                                 Box(
@@ -235,7 +260,7 @@ fun RepoItem(
                     )
                 }
             }
-            
+
             if (!repo.description.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 HighlightedText(
@@ -244,33 +269,33 @@ fun RepoItem(
                     modifier = Modifier
                 )
             }
-            
-                Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                HighlightedText(
+                    text = repo.language ?: "",
+                    keywords = keywords,
+                    modifier = Modifier
+                )
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                        HighlightedText(
-                            text = repo.language ?: "",
-                            keywords = keywords,
-                            modifier = Modifier
-                        )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Stars",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = repo.stars.toString(),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "Stars",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = repo.stars.toString(),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
+            }
 
         }
     }
@@ -322,7 +347,7 @@ fun Date.minusMonths(months: Int): Date {
     calendar.time = this
     calendar.add(Calendar.MONTH, -months)
     return calendar.time
-}   
+}
 
 fun Date.minusYears(years: Int): Date {
     val calendar = Calendar.getInstance()
@@ -330,7 +355,7 @@ fun Date.minusYears(years: Int): Date {
     calendar.add(Calendar.YEAR, -years)
     return calendar.time
 }
-    
+
 fun Date.yymmdd(): String {
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     return formatter.format(this)
