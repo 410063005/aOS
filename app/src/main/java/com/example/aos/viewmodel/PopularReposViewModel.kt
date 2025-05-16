@@ -7,6 +7,7 @@ import com.example.aos.data.UserPreferences
 import com.example.aos.model.GithubRepo
 import com.example.aos.service.GithubApi
 import com.example.aos.service.GithubApiFactory
+import com.example.aos.util.DateUtils
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,7 +40,7 @@ class PopularReposViewModel(
 
     init {
         loadPreferences()
-        fetchPopularRepos(_selectedDate.value)
+        fetchPopularRepos(DateUtils.strToDate(_selectedDate.value))
     }
 
     fun setSelectedDate(date: String?) {

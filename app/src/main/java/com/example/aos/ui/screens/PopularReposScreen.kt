@@ -52,13 +52,10 @@ import coil.compose.AsyncImage
 import com.example.aos.model.GithubRepo
 import com.example.aos.model.Owner
 import com.example.aos.ui.components.HighlightedText
+import com.example.aos.util.DateUtils
 import com.example.aos.viewmodel.PopularReposViewModel
 import com.example.aos.viewmodel.ViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 @Preview(showBackground = true)
 @Composable
@@ -87,7 +84,7 @@ fun PopularReposScreen(
         refreshing = isPulling,
         onRefresh = {
             isPulling = true
-            viewModel.fetchPopularRepos(strToDate(selectedDate)) {
+            viewModel.fetchPopularRepos(DateUtils.strToDate(selectedDate)) {
                 isPulling = false
             }
         }
@@ -98,7 +95,7 @@ fun PopularReposScreen(
         snapshotFlow { listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index }
             .collectLatest { lastIndex ->
                 if (lastIndex != null && lastIndex >= repos.size - 5 && hasMoreItems && !isLoading) {
-                    viewModel.fetchPopularRepos(strToDate(selectedDate))
+                    viewModel.fetchPopularRepos(DateUtils.strToDate(selectedDate))
                 }
             }
     }
@@ -120,7 +117,7 @@ fun PopularReposScreen(
                 onExpand = { viewModel.toggleDateFilter() },
                 onDateSelected = { date ->
                     viewModel.setSelectedDate(date)
-                    val fmtDate = strToDate(date)
+                    val fmtDate = DateUtils.strToDate(date)
                     viewModel.reset(fmtDate)
                     viewModel.toggleDateFilter()
                 }
@@ -184,18 +181,6 @@ fun PopularReposScreen(
             modifier = Modifier.align(Alignment.TopCenter)
         )
     }
-}
-
-private fun strToDate(date: String?): String? {
-    val fmtDate = when (date) {
-        "2 Weeks" -> Date().minusDays(14).yymmdd()
-        "1 Month" -> Date().minusMonths(1).yymmdd()
-        "2 Months" -> Date().minusMonths(2).yymmdd()
-        "6 Months" -> Date().minusMonths(6).yymmdd()
-        "1 Year" -> Date().minusYears(1).yymmdd()
-        else -> null
-    }
-    return fmtDate
 }
 
 @Preview(showBackground = true)
@@ -381,30 +366,4 @@ private fun DateFilter(
             }
         }
     }
-}
-
-fun Date.minusDays(days: Int): Date {
-    val calendar = Calendar.getInstance()
-    calendar.time = this
-    calendar.add(Calendar.DAY_OF_YEAR, -days)
-    return calendar.time
-}
-
-fun Date.minusMonths(months: Int): Date {
-    val calendar = Calendar.getInstance()
-    calendar.time = this
-    calendar.add(Calendar.MONTH, -months)
-    return calendar.time
-}
-
-fun Date.minusYears(years: Int): Date {
-    val calendar = Calendar.getInstance()
-    calendar.time = this
-    calendar.add(Calendar.YEAR, -years)
-    return calendar.time
-}
-
-fun Date.yymmdd(): String {
-    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    return formatter.format(this)
 }
