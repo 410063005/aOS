@@ -11,14 +11,15 @@ class ViewModelFactory(
     private val application: Application
 ) : ViewModelProvider.Factory {
     private val api: GithubApi = GithubApiFactory.githubApi
+    private val userPreferences = UserPreferences(application)
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> 
-                LoginViewModel(api, UserPreferences(application)) as T
+                LoginViewModel(api, userPreferences) as T
             modelClass.isAssignableFrom(PopularReposViewModel::class.java) -> 
-                PopularReposViewModel(api) as T
+                PopularReposViewModel(api, userPreferences) as T
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> 
                 ProfileViewModel(api) as T
             modelClass.isAssignableFrom(RepoDetailViewModel::class.java) -> 

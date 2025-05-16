@@ -3,6 +3,7 @@ package com.example.aos.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.aos.data.UserPreferences
 import com.example.aos.model.GithubRepo
 import com.example.aos.service.GithubApi
 import com.example.aos.service.GithubApiFactory
@@ -12,7 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class PopularReposViewModel(
-    private val api: GithubApi = GithubApiFactory.githubApi
+    private val api: GithubApi = GithubApiFactory.githubApi,
+    private val userPreferences: UserPreferences
 ) : ViewModel() {
     private val _repos = MutableStateFlow<List<GithubRepo>>(emptyList())
     val repos: StateFlow<List<GithubRepo>> = _repos.asStateFlow()
@@ -26,25 +28,33 @@ class PopularReposViewModel(
     private val _hasMoreItems = MutableStateFlow(true)
     val hasMoreItems: StateFlow<Boolean> = _hasMoreItems.asStateFlow()
 
-    private val _selectedDate = MutableStateFlow<String?>(null)
+    private val _selectedDate = MutableStateFlow(userPreferences.getSelectedDate())
     val selectedDate: StateFlow<String?> = _selectedDate.asStateFlow()
 
-    private val _expandDateFilter = MutableStateFlow(false)
+    private val _expandDateFilter = MutableStateFlow(userPreferences.getExpandDateFilter())
     val expandDateFilter: StateFlow<Boolean> = _expandDateFilter.asStateFlow()
 
     private var currentPage = 1
     private var totalCount = 0
 
     init {
-        fetchPopularRepos()
+        loadPreferences()
+        fetchPopularRepos(_selectedDate.value)
     }
 
     fun setSelectedDate(date: String?) {
         _selectedDate.value = date
+        userPreferences.saveSelectedDate(date)
     }
 
     fun toggleDateFilter() {
         _expandDateFilter.value = !_expandDateFilter.value
+        userPreferences.saveExpandDateFilter(_expandDateFilter.value)
+    }
+
+    private fun loadPreferences() {
+        _selectedDate.value = userPreferences.getSelectedDate()
+        _expandDateFilter.value = userPreferences.getExpandDateFilter()
     }
 
     fun fetchPopularRepos(date: String? = null, postFetch: () -> Unit = {}) {

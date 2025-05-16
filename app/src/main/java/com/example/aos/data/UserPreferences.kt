@@ -13,6 +13,8 @@ class UserPreferences(context: Context) {
         private const val PREFS_NAME = "user_prefs"
         private const val KEY_TOKEN = "token"
         private const val KEY_USER = "user"
+        private const val KEY_SELECTED_DATE = "popular_repo.selected_date"
+        private const val KEY_EXPAND_DATE_FILTER = "popular_repo.expand_date_filter"
     }
 
     fun saveToken(token: String) {
@@ -35,6 +37,22 @@ class UserPreferences(context: Context) {
         } catch (e: Exception) {
             null
         }
+    }
+
+    fun saveSelectedDate(date: String?) {
+        prefs.edit().putString(KEY_SELECTED_DATE, date).apply()
+    }
+
+    fun getSelectedDate(): String? {
+        return prefs.getString(KEY_SELECTED_DATE, null)
+    }
+
+    fun saveExpandDateFilter(expand: Boolean) {
+        prefs.edit().putBoolean(KEY_EXPAND_DATE_FILTER, expand).apply()
+    }
+
+    fun getExpandDateFilter(): Boolean {
+        return prefs.getBoolean(KEY_EXPAND_DATE_FILTER, false)
     }
 
     fun clearUserData() {
