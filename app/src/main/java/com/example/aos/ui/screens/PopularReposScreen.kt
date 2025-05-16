@@ -326,7 +326,7 @@ private fun DateFilter(
             label = {
                 Row {
                     Text(
-                        text = selectedDate ?: "By date",
+                        text = selectedDate ?: "Filter by date",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
