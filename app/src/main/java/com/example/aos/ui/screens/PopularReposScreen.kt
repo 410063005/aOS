@@ -79,12 +79,12 @@ fun PopularReposScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val hasMoreItems by viewModel.hasMoreItems.collectAsState()
-    var selectedDate by remember { mutableStateOf<String?>(null) }
-    var expandDateFilter by remember { mutableStateOf(false) }
+    val selectedDate by viewModel.selectedDate.collectAsState()
+    val expandDateFilter by viewModel.expandDateFilter.collectAsState()
     var isPulling by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = isPulling, //isLoading && repos.isEmpty(),
+        refreshing = isPulling,
         onRefresh = {
             isPulling = true
             viewModel.fetchPopularRepos(strToDate(selectedDate)) {
@@ -117,13 +117,12 @@ fun PopularReposScreen(
             DateFilter(
                 expand = expandDateFilter,
                 selectedDate = selectedDate,
-                onExpand = { expandDateFilter = !expandDateFilter },
+                onExpand = { viewModel.toggleDateFilter() },
                 onDateSelected = { date ->
-                    selectedDate = date
+                    viewModel.setSelectedDate(date)
                     val fmtDate = strToDate(date)
                     viewModel.reset(fmtDate)
-
-                    expandDateFilter = false
+                    viewModel.toggleDateFilter()
                 }
             )
 
@@ -180,7 +179,7 @@ fun PopularReposScreen(
         }
 
         PullRefreshIndicator(
-            refreshing = isPulling, //isLoading && repos.isEmpty(),
+            refreshing = isPulling,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter)
         )

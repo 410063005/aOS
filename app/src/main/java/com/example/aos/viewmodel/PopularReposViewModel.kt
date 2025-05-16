@@ -26,11 +26,25 @@ class PopularReposViewModel(
     private val _hasMoreItems = MutableStateFlow(true)
     val hasMoreItems: StateFlow<Boolean> = _hasMoreItems.asStateFlow()
 
+    private val _selectedDate = MutableStateFlow<String?>(null)
+    val selectedDate: StateFlow<String?> = _selectedDate.asStateFlow()
+
+    private val _expandDateFilter = MutableStateFlow(false)
+    val expandDateFilter: StateFlow<Boolean> = _expandDateFilter.asStateFlow()
+
     private var currentPage = 1
     private var totalCount = 0
 
     init {
         fetchPopularRepos()
+    }
+
+    fun setSelectedDate(date: String?) {
+        _selectedDate.value = date
+    }
+
+    fun toggleDateFilter() {
+        _expandDateFilter.value = !_expandDateFilter.value
     }
 
     fun fetchPopularRepos(date: String? = null, postFetch: () -> Unit = {}) {
