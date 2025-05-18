@@ -108,7 +108,7 @@ fun PopularReposScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 0.dp)
         ) {
             // Date Filter
             DateFilter(
@@ -123,7 +123,7 @@ fun PopularReposScreen(
                 }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(0.dp))
 
             when {
                 error != null && repos.isEmpty() -> {
@@ -347,7 +347,6 @@ private fun DateFilter(
             }
         )
         if (expand) {
-            Spacer(modifier = Modifier.height(8.dp))
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
