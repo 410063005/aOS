@@ -30,7 +30,7 @@ fun SearchScreen(
     )
 ) {
     var searchQuery by remember { mutableStateOf("") }
-    var selectedLanguage by remember { mutableStateOf<String?>(null) }
+    var selectedLanguages by remember { mutableStateOf<Set<String>>(emptySet()) }
     
     val repos by viewModel.repos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -43,23 +43,22 @@ fun SearchScreen(
                     // Search Bar
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = {
                                 searchQuery = it
-                                viewModel.searchRepos(it, selectedLanguage)
+                                viewModel.searchRepos(it, selectedLanguages)
                             },
                             modifier = Modifier.weight(1f),
-                            placeholder = { Text("Search repositories...") },
+                            placeholder = { Text("Search repositories") },
                             leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
                             trailingIcon = {
                                 if (searchQuery.isNotEmpty()) {
                                     IconButton(onClick = {
                                         searchQuery = ""
-                                        viewModel.searchRepos("", selectedLanguage)
+                                        viewModel.searchRepos("", selectedLanguages)
                                     }) {
                                         Icon(Icons.Default.Clear, contentDescription = "Clear")
                                     }
@@ -85,10 +84,10 @@ fun SearchScreen(
         ) {
             // Language Filter
             LanguageFilter(
-                selectedLanguage = selectedLanguage,
-                onLanguageSelected = { language ->
-                    selectedLanguage = language
-                    viewModel.searchRepos(searchQuery, language)
+                selectedLanguages = selectedLanguages,
+                onLanguageSelected = { languages ->
+                    selectedLanguages = languages
+                    viewModel.searchRepos(searchQuery, languages)
                 }
             )
 
@@ -117,7 +116,7 @@ fun SearchScreen(
                                 color = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            Button(onClick = { viewModel.searchRepos(searchQuery, selectedLanguage) }) {
+                            Button(onClick = { viewModel.searchRepos(searchQuery, selectedLanguages) }) {
                                 Text("Retry")
                             }
                         }
@@ -145,8 +144,8 @@ fun SearchScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun LanguageFilter(
-    selectedLanguage: String?,
-    onLanguageSelected: (String?) -> Unit
+    selectedLanguages: Set<String>,
+    onLanguageSelected: (Set<String>) -> Unit
 ) {
     val languages = listOf("Kotlin", "Java", "Python", "JavaScript", "TypeScript", "Go", "Rust")
     
@@ -158,18 +157,24 @@ private fun LanguageFilter(
         )
         Spacer(modifier = Modifier.height(8.dp))
         FlowRow(
-            //modifier = Modifier.horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             FilterChip(
-                selected = selectedLanguage == null,
-                onClick = { onLanguageSelected(null) },
+                selected = selectedLanguages.isEmpty(),
+                onClick = { onLanguageSelected(emptySet()) },
                 label = { Text("All") }
             )
             languages.forEach { language ->
                 FilterChip(
-                    selected = selectedLanguage == language,
-                    onClick = { onLanguageSelected(language) },
+                    selected = language in selectedLanguages,
+                    onClick = { 
+                        val newSelection = if (language in selectedLanguages) {
+                            selectedLanguages - language
+                        } else {
+                            selectedLanguages + language
+                        }
+                        onLanguageSelected(newSelection)
+                    },
                     label = { Text(language) }
                 )
             }

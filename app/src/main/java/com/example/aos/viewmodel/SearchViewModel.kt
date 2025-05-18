@@ -27,6 +27,14 @@ class SearchViewModel(
     private var searchJob: Job? = null
 
     fun searchRepos(query: String, language: String?) {
+        if (language.isNullOrBlank()) {
+            this.searchRepos(query, emptyList())
+        } else {
+            this.searchRepos(query, listOf(language))
+        }
+    }
+
+    fun searchRepos(query: String, languages: Collection<String>) {
         if (query.isEmpty()) {
             _repos.value = emptyList()
             return
@@ -45,9 +53,9 @@ class SearchViewModel(
                         append(query)
                         append(" in:name")
                     }
-                    if (language != null) {
-                        if (isNotEmpty()) append(" ")
-                        append("language:$language")
+                    if (languages.isNotEmpty()) {
+                        append(" ")
+                        append("language:${languages.joinToString(" language:")}".lowercase())
                     }
                 }
 
