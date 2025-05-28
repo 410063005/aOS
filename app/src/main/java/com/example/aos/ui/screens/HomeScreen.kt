@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -33,16 +32,6 @@ fun HomeScreen(
     var selectedTab by remember { mutableStateOf<Tab>(Tab.PopularRepos) }
 
     Scaffold(
-        topBar = {  
-            TopAppBar(
-                title = { Text("aOS") },
-                actions = {
-                    IconButton(onClick = { navController?.navigate(Screen.Search.route) }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
-                    }
-                }
-            )
-        },
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
@@ -63,6 +52,7 @@ fun HomeScreen(
         when (selectedTab) {
             Tab.PopularRepos -> {
                 PopularReposScreen(
+                    navController = navController,
                     onRepoClick = { repo ->
                         /* Handle repo click */
                         navController?.navigate(Screen.RepoDetails.createRoute(repo.owner.login, repo.name))

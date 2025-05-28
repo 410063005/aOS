@@ -22,6 +22,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -32,6 +33,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,9 +50,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.aos.model.GithubRepo
 import com.example.aos.model.Owner
+import com.example.aos.navigation.Screen
 import com.example.aos.ui.components.HighlightedText
 import com.example.aos.util.DateUtils
 import com.example.aos.viewmodel.PopularReposViewModel
@@ -60,12 +64,13 @@ import kotlinx.coroutines.flow.collectLatest
 @Preview(showBackground = true)
 @Composable
 fun PopularReposScreenPreview() {
-    PopularReposScreen({})
+    PopularReposScreen(null, {})
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PopularReposScreen(
+    navController: NavController?,
     onRepoClick: (GithubRepo) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: PopularReposViewModel = viewModel(
@@ -110,18 +115,26 @@ fun PopularReposScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 0.dp)
         ) {
-            // Date Filter
-            DateFilter(
-                expand = expandDateFilter,
-                selectedDate = selectedDate,
-                onExpand = { viewModel.toggleDateFilter() },
-                onDateSelected = { date ->
-                    viewModel.setSelectedDate(date)
-                    val fmtDate = DateUtils.strToDate(date)
-                    viewModel.reset(fmtDate)
-                    viewModel.toggleDateFilter()
+            Row {
+                // Date Filter
+                DateFilter(
+                    expand = expandDateFilter,
+                    selectedDate = selectedDate,
+                    onExpand = { viewModel.toggleDateFilter() },
+                    onDateSelected = { date ->
+                        viewModel.setSelectedDate(date)
+                        val fmtDate = DateUtils.strToDate(date)
+                        viewModel.reset(fmtDate)
+                        viewModel.toggleDateFilter()
+                    }
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(
+                    onClick = { navController?.navigate(Screen.Search.route) }
+                ) {
+                    Icon(Icons.Default.Search, contentDescription = "Search")
                 }
-            )
+            }
 
             Spacer(modifier = Modifier.height(0.dp))
 

@@ -78,18 +78,18 @@ fun ProfileScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Profile") },
-                actions = {
-                    if (isLoggedIn) {
-                        IconButton(onClick = { loginViewModel.logout() }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Logout")
-                        }
-                    }
-                }
-            )
-        }
+//        topBar = {
+//            TopAppBar(
+//                title = { Text("Profile") },
+//                actions = {
+//                    if (isLoggedIn) {
+//                        IconButton(onClick = { loginViewModel.logout() }) {
+//                            Icon(Icons.Default.Delete, contentDescription = "Logout")
+//                        }
+//                    }
+//                }
+//            )
+//        }
     ) { paddingValues ->
         when {
             !isLoggedIn -> {
@@ -231,7 +231,7 @@ private fun ProfileHeader(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.weight(1f))
         Button(onClick = {
             viewModel.reset()
             loginViewModel.logout()
