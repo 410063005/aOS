@@ -1,22 +1,50 @@
 package com.example.aos.ui.screens
 
 import android.app.Application
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.aos.model.GithubRepo
 import com.example.aos.viewmodel.SearchViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aos.viewmodel.ViewModelFactory
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,7 +59,9 @@ fun SearchScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var selectedLanguages by remember { mutableStateOf<Set<String>>(emptySet()) }
-    
+
+    val expandLanguageFilter by viewModel.expandLanguageFilter.collectAsState()
+
     val repos by viewModel.repos.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -53,7 +83,12 @@ fun SearchScreen(
                             },
                             modifier = Modifier.weight(1f),
                             placeholder = { Text("Search repositories") },
-                            leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Search,
+                                    contentDescription = "Search"
+                                )
+                            },
                             trailingIcon = {
                                 if (searchQuery.isNotEmpty()) {
                                     IconButton(onClick = {
@@ -84,9 +119,12 @@ fun SearchScreen(
         ) {
             // Language Filter
             LanguageFilter(
+                expanded = expandLanguageFilter,
                 selectedLanguages = selectedLanguages,
+                onExpand = { viewModel.toggleLanguageFilter() },
                 onLanguageSelected = { languages ->
                     selectedLanguages = languages
+                    viewModel.toggleLanguageFilter()
                     viewModel.searchRepos(searchQuery, languages)
                 }
             )
@@ -103,6 +141,7 @@ fun SearchScreen(
                         CircularProgressIndicator()
                     }
                 }
+
                 error != null -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -116,12 +155,18 @@ fun SearchScreen(
                                 color = MaterialTheme.colorScheme.error
                             )
                             Spacer(modifier = Modifier.height(8.dp))
-                            Button(onClick = { viewModel.searchRepos(searchQuery, selectedLanguages) }) {
+                            Button(onClick = {
+                                viewModel.searchRepos(
+                                    searchQuery,
+                                    selectedLanguages
+                                )
+                            }) {
                                 Text("Retry")
                             }
                         }
                     }
                 }
+
                 else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -144,39 +189,69 @@ fun SearchScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun LanguageFilter(
+    expanded: Boolean,
     selectedLanguages: Set<String>,
+    onExpand: () -> Unit,
     onLanguageSelected: (Set<String>) -> Unit
 ) {
     val languages = listOf("Kotlin", "Java", "Python", "JavaScript", "TypeScript", "Go", "Rust")
-    
+
     Column {
-        Text(
-            text = "Filter by language:",
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterChip(
-                selected = selectedLanguages.isEmpty(),
-                onClick = { onLanguageSelected(emptySet()) },
-                label = { Text("All") }
-            )
-            languages.forEach { language ->
-                FilterChip(
-                    selected = language in selectedLanguages,
-                    onClick = { 
-                        val newSelection = if (language in selectedLanguages) {
-                            selectedLanguages - language
+        FilterChip(
+            selected = false,
+            onClick = { onExpand() },
+            label = {
+                Row {
+                    Text(
+                        text = if (selectedLanguages.isEmpty()) {
+                            "Filter by language"
+                        } else if (selectedLanguages.size == 1) {
+                            selectedLanguages.first()
                         } else {
-                            selectedLanguages + language
-                        }
-                        onLanguageSelected(newSelection)
-                    },
-                    label = { Text(language) }
+                            selectedLanguages.first() + "+" + (selectedLanguages.size - 1)
+                        },
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (expanded) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowUp,
+                            contentDescription = "ArrowUp",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "ArrowDown",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+        )
+        if (expanded) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    selected = selectedLanguages.isEmpty(),
+                    onClick = { onLanguageSelected(emptySet()) },
+                    label = { Text("All") }
                 )
+                languages.forEach { language ->
+                    FilterChip(
+                        selected = language in selectedLanguages,
+                        onClick = {
+                            val newSelection = if (language in selectedLanguages) {
+                                selectedLanguages - language
+                            } else {
+                                selectedLanguages + language
+                            }
+                            onLanguageSelected(newSelection)
+                        },
+                        label = { Text(language) }
+                    )
+                }
             }
         }
     }

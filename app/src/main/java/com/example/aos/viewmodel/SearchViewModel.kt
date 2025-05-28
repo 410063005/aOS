@@ -24,7 +24,14 @@ class SearchViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _expandLanguageFilter = MutableStateFlow(false)
+    val expandLanguageFilter: StateFlow<Boolean> = _expandLanguageFilter.asStateFlow()
+
     private var searchJob: Job? = null
+
+    fun toggleLanguageFilter() {
+        _expandLanguageFilter.value = !_expandLanguageFilter.value
+    }
 
     fun searchRepos(query: String, language: String?) {
         if (language.isNullOrBlank()) {
